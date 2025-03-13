@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Danh Sách Bài Hát</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+</head>
+<body class="bg-gray-100 p-6">
+<div class="container mx-auto">
+    <h1 class="text-3xl font-bold mb-4">Danh Sách Bài Hát</h1>
+
+    <!-- Hiển thị thông báo -->
+    <div th:if="${message}" class="bg-green-500 text-white p-3 rounded mb-4">
+        <span th:text="${message}"></span>
+    </div>
+
+    <table class="min-w-full bg-white shadow-md rounded">
+        <thead>
+        <tr class="bg-gray-200">
+            <th class="px-4 py-2">Ảnh</th>
+            <th class="px-4 py-2">Tên bài hát</th>
+            <th class="px-4 py-2">Người đăng</th>
+            <th class="px-4 py-2">Thời gian</th>
+            <th class="px-4 py-2">Ngày tải lên</th>
+            <th class="px-4 py-2">Lượt thích</th>
+            <th class="px-4 py-2">Lượt xem</th>
+            <th class="px-4 py-2">Lượt bình luận</th>
+            <th class="px-4 py-2">Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="track : ${tracks}" class="border-b">
+            <td class="px-4 py-2"><img th:src="${track.image}" alt="Ảnh bài hát" class="h-12 w-12 rounded"></td>
+            <td class="px-4 py-2" th:text="${track.nameTrack}"></td>
+            <td class="px-4 py-2" th:text="${track.userName}"></td>
+            <td class="px-4 py-2" th:text="${track.duration}"></td>
+            <td class="px-4 py-2" th:text="${track.createdAt}"></td>
+            <td class="px-4 py-2" th:text="${track.likeCount}"></td>
+            <td class="px-4 py-2" th:text="${track.viewCount}"></td>
+            <td class="px-4 py-2" th:text="${track.commentCount}"></td>
+            <td class="px-4 py-2">
+                <!-- Nút cập nhật -->
+                <button onclick="editTrack(this)"
+                        th:data-id="${track.idTrack}"
+                        th:data-name="${track.nameTrack}"
+                        th:data-user="${track.userName}"
+                        th:data-duration="${track.duration}"
+                        th:data-date="${track.createdAt}"
+                        th:data-url="${track.urlTrack}"
+                        th:data-image="${track.image}"
+                        class="bg-blue-500 text-white px-4 py-2 rounded">Sửa</button>
+
+                <!-- Nút xóa -->
+                <a th:href="@{/delete/{id}(id=${track.idTrack})}" class="bg-red-500 text-white px-4 py-2 rounded">Xóa</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Form cập nhật track (ẩn mặc định) -->
+    <form id="editForm" th:action="@{/update}" method="post" class="mt-4 p-4 bg-white shadow-md rounded hidden">
+        <input type="hidden" id="idTrack" name="idTrack"/>
+
+        <label>Tên bài hát:</label>
+        <input type="text" id="nameTrack" name="nameTrack" required/><br/>
+
+        <label>Người đăng:</label>
+        <input type="text" id="userName" name="userName" required/><br/>
+
+        <label>Thời lượng:</label>
+        <input type="text" id="duration" name="duration" required/><br/>
+
+        <label>Ngày tạo:</label>
+        <input type="date" id="createdAt" name="createdAt" required/><br/>
+
+        <label>URL:</label>
+        <input type="text" id="urlTrack" name="urlTrack" required/><br/>
+
+        <label>Hình ảnh:</label>
+        <input type="text" id="image" name="image" required/><br/>
+
+        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Cập nhật</button>
+        <button type="button" onclick="hideForm()" class="bg-gray-500 text-white px-4 py-2 rounded">Hủy</button>
+    </form>
+</div>
+
+<script>
+    function editTrack(button) {
+        document.getElementById("idTrack").value = button.getAttribute("data-id");
+        document.getElementById("nameTrack").value = button.getAttribute("data-name");
+        document.getElementById("userName").value = button.getAttribute("data-user");
+        document.getElementById("duration").value = button.getAttribute("data-duration");
+        document.getElementById("createdAt").value = button.getAttribute("data-date");
+        document.getElementById("urlTrack").value = button.getAttribute("data-url");
+        document.getElementById("image").value = button.getAttribute("data-image");
+        // Hiển thị form cập nhật
+        document.getElementById("editForm").classList.remove("hidden");
+    }
+       function hideForm() {
+        document.getElementById("editForm").classList.add("hidden");
+    }
+</script>
+
+</body>
+</html>
+
