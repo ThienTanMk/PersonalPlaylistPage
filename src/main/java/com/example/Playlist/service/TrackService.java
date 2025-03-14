@@ -1,6 +1,7 @@
 package com.example.Playlist.service;
 
-import com.example.Playlist.dto.TrackDto;
+import com.example.Playlist.dto.request.TrackRequest;
+import com.example.Playlist.dto.response.TrackResponse;
 import com.example.Playlist.entity.Track;
 import com.example.Playlist.repository.TrackRepository;
 import lombok.AccessLevel;
@@ -17,40 +18,54 @@ import java.util.stream.Collectors;
 public class TrackService {
     TrackRepository trackRepository;
 
-    public List<TrackDto> getAllTracks() {
+    public List<TrackResponse> getAllTracks() {
         return trackRepository.findAllByOrderByCreatedAtDesc().stream()
-                .map(track -> new TrackDto(
-                        track.getIdTrack(),
-                        track.getNameTrack(),
-                        track.getUserName(),
-                        track.getDuration(),
-                        track.getCreatedAt(),
-                        track.getLikeCount(),
-                        track.getViewCount(),
-                        track.getCommentCount(),
-                        track.getUrlTrack(),
-                        track.getImage()
-                ))
+                .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
-    public void updateTrack(TrackDto trackDto) {
-        Track track = trackRepository.findById(trackDto.getIdTrack())
+
+    public TrackResponse getTrackById(Long id) {
+        Track track = trackRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Track không tồn tại"));
 
-        track.setNameTrack(trackDto.getNameTrack());
-        track.setUserName(trackDto.getUserName());
-        track.setDuration(trackDto.getDuration());
-        track.setCreatedAt(trackDto.getCreatedAt());
-        track.setUrlTrack(trackDto.getUrlTrack());
-        track.setImage(trackDto.getImage());
-
-        trackRepository.save(track);
+        return mapToResponse(track);
     }
-    public void deleteTrack(Long id) {
+
+    public String deleteTrack(Long id) {
         if (!trackRepository.existsById(id)) {
-            throw new RuntimeException("Track không tồn tại");
+            throw new RuntimeException("Bài hát không tồn tại");
         }
         trackRepository.deleteById(id);
+        return "Bài hát đã được xóa thành công";
     }
 
+    public TrackResponse updateTrack(Long id, TrackRequest trackRequest) {
+        Track track = trackRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Track không tồn tại"));
+
+        track.setNameTrack(trackRequest.getNameTrack());
+        track.setUserName(trackRequest.getUserName());
+        track.setDuration(trackRequest.getDuration());
+        track.setCreatedAt(trackRequest.getCreatedAt());
+        track.setUrlTrack(trackRequest.getUrlTrack());
+        track.setImage(trackRequest.getImage());
+
+        trackRepository.save(track);
+        return mapToResponse(track);
+    }
+
+    private TrackResponse mapToResponse(Track track) {
+        return TrackResponse.builder()
+                .idTrack(track.getIdTrack())
+                .nameTrack(track.getNameTrack())
+                .userName(track.getUserName())
+                .duration(track.getDuration())
+                .createdAt(track.getCreatedAt())
+                .likeCount(track.getLikeCount())
+                .viewCount(track.getViewCount())
+                .commentCount(track.getCommentCount())
+                .urlTrack(track.getUrlTrack())
+                .image(track.getImage())
+                .build();
+    }
 }

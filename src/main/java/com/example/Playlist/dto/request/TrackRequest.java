@@ -1,4 +1,4 @@
-package com.example.Playlist.dto;
+package com.example.Playlist.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -11,15 +11,11 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TrackDto {
-    Long idTrack;
+public class TrackRequest {
     String nameTrack;
     String userName;
     LocalTime duration;
     LocalDate createdAt;
-    int likeCount;
-    int viewCount;
-    int commentCount;
     String urlTrack;
     String image;
 }

@@ -1,18 +1,21 @@
 package com.example.Playlist.controller;
 
-import com.example.Playlist.dto.TrackDto;
+import com.example.Playlist.dto.ApiResponse;
+import com.example.Playlist.dto.request.TrackRequest;
+import com.example.Playlist.dto.response.TrackResponse;
 import com.example.Playlist.service.TrackService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -20,24 +23,42 @@ public class TrackController {
     TrackService trackService;
 
     @GetMapping
-    public String getAllTracks(Model model) {
-        List<TrackDto> tracks = trackService.getAllTracks();
-        model.addAttribute("tracks", tracks);
-        return "tracks";
+    public ResponseEntity<ApiResponse<List<TrackResponse>>> getAllTracks() {
+        List<TrackResponse> tracks = trackService.getAllTracks();
+        return ResponseEntity.ok(ApiResponse.<List<TrackResponse>>builder()
+                .code(1000)
+                .message("Lấy danh sách bài hát thành công")
+                .data(tracks)
+                .build());
     }
 
-    @PostMapping("/update")
-    public String updateTrack(@ModelAttribute TrackDto trackDto, RedirectAttributes redirectAttributes) {
-        trackService.updateTrack(trackDto);
-        redirectAttributes.addAttribute("message", "Cập nhật thành công!");
-        return "redirect:/";
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<TrackResponse>> getTrackById(@PathVariable Long id) {
+        TrackResponse track = trackService.getTrackById(id);
+        return ResponseEntity.ok(ApiResponse.<TrackResponse>builder()
+                .code(1000)
+                .message("Lấy bài hát thành công")
+                .data(track)
+                .build());
     }
 
-    @GetMapping("/delete/{id}")
-    public String deleteTrack(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<ApiResponse<String>> deleteTrack(@PathVariable Long id) {
         trackService.deleteTrack(id);
-        redirectAttributes.addAttribute("message", "Xóa thành công!");
-        return "redirect:/";
+        return ResponseEntity.ok(ApiResponse.<String>builder()
+                .code(1000)
+                .message("Xóa bài hát thành công")
+                .data("Track Deleted")
+                .build());
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<ApiResponse<TrackResponse>> updateTrack(@PathVariable Long id, @Valid @RequestBody TrackRequest trackRequest) {
+        TrackResponse updatedTrack = trackService.updateTrack(id, trackRequest);
+        return ResponseEntity.ok(ApiResponse.<TrackResponse>builder()
+                .code(1000)
+                .message("Cập nhật bài hát thành công")
+                .data(updatedTrack)
+                .build());
+    }
 }
