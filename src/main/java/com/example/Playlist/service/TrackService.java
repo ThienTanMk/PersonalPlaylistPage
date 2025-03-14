@@ -44,12 +44,9 @@ public class TrackService {
                 .orElseThrow(() -> new RuntimeException("Track không tồn tại"));
 
         track.setNameTrack(trackRequest.getNameTrack());
-        track.setUserName(trackRequest.getUserName());
-        track.setDuration(trackRequest.getDuration());
-        track.setCreatedAt(trackRequest.getCreatedAt());
-        track.setUrlTrack(trackRequest.getUrlTrack());
-        track.setImage(trackRequest.getImage());
-
+        track.setDescription(trackRequest.getDescription());
+        track.setIsPublic(trackRequest.getIsPublic());
+        track.setMainArtist(trackRequest.getMainArtist());
         trackRepository.save(track);
         return mapToResponse(track);
     }
@@ -66,6 +63,15 @@ public class TrackService {
                 .commentCount(track.getCommentCount())
                 .urlTrack(track.getUrlTrack())
                 .image(track.getImage())
+                .isPublic(track.getIsPublic())
+                .description(track.getDescription())
+                .mainArtist(track.getMainArtist())
                 .build();
+    }
+    public TrackResponse uploadImage(String imageUrl, Long id)  {
+        Track track =  trackRepository.findById(id).orElseThrow(() -> new RuntimeException("Can not find track"));
+        track.setImage("http://localhost:8181/" + imageUrl);
+        trackRepository.save(track);
+        return mapToResponse(track);
     }
 }

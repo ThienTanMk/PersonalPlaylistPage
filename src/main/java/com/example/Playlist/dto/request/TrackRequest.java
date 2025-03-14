@@ -17,6 +17,8 @@ public class TrackRequest {
     LocalTime duration;
     LocalDate createdAt;
     String urlTrack;
-    String image;
+    String description;
+    String mainArtist;
+    Boolean isPublic;
 }
 

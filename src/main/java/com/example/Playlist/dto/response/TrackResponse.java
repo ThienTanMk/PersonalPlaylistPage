@@ -22,5 +22,8 @@ public class TrackResponse {
     int commentCount;
     String urlTrack;
     String image;
+    String description;
+    String mainArtist;
+    Boolean isPublic;
 }
 

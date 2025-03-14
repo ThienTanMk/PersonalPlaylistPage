@@ -45,4 +45,10 @@ public class Track {
     String image;
     @Column(name = "created_at")
     LocalDate createdAt;
+    @Column
+    String description;
+    @Column(name = "main_artist")
+    String mainArtist;
+    @Column(name = "is_public")
+    Boolean isPublic;
 }
