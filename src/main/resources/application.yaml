@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:sqlserver://localhost:1433;databaseName=personal-playlist;encrypt=true;trustServerCertificate=true
+    url: jdbc:sqlserver://localhost:1433;databaseName=MusicManagement;encrypt=true;trustServerCertificate=true
     username: sa
     password: 123456789
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
@@ -19,4 +19,4 @@ spring:
     resources:
       static-locations: file:uploads/
 server:
-  port: 8181
+  port: 8080

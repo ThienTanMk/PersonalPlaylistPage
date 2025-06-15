@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface TrackRepository extends JpaRepository<Track,Long> {
     List<Track> findAllByOrderByCreatedAtDesc();
+    List<Track> findAllByUserEmailOrderByCreatedAtDesc(String email);
+    Track findByUserEmail(String email);
 }

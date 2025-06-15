@@ -25,5 +25,6 @@ public class TrackResponse {
     String description;
     String mainArtist;
     Boolean isPublic;
+    GenreResponse genre;
 }
 

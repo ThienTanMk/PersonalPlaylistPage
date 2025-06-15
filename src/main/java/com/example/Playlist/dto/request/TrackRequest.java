@@ -20,5 +20,5 @@ public class TrackRequest {
     String description;
     String mainArtist;
     Boolean isPublic;
+    long genreId;
 }
-
