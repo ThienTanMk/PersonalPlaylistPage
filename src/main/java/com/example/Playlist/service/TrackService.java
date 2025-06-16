@@ -98,6 +98,10 @@ public class TrackService {
         track.setDescription(trackRequest.getDescription());
         track.setIsPublic(trackRequest.getIsPublic());
         track.setMainArtist(trackRequest.getMainArtist());
+        if(trackRequest.getGenreId()!=0){
+            Genre genre = genreRepository.findById(trackRequest.getGenreId()).orElse(null);
+            track.setGenre(genre);
+        }
         trackRepository.save(track);
         return mapToResponse(track);
     }
@@ -106,9 +110,16 @@ public class TrackService {
             String title,
             String description,
             String mainArtist,
+            Long genreId,
             boolean isPublic,
             MultipartFile image) {
+        Track track = trackRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Track không tồn tại"));
+        if(!track.getUser().getEmail().equals(SecurityContextHolder.getContext().getAuthentication().getName())){
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
         try {
+
             // Nếu có file ảnh, lưu với tên chứa ngày giờ upload
             if (image != null && !image.isEmpty()) {
                 Path uploadPath = Paths.get(UPLOAD_IMAGE_DIR);
@@ -131,6 +142,11 @@ public class TrackService {
                     .description(description)
                     .mainArtist(mainArtist)
                     .build();
+            if (genreId == null) {
+                 trackRequest.setGenreId(0);
+            } else {
+                trackRequest.setGenreId(genreId);
+            }
             TrackResponse updatedTrack = updateTrack(id, trackRequest);
 
             return updatedTrack;

@@ -8,10 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.example.Playlist.dto.ApiResponse;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.util.Map;
 import java.util.Objects;
@@ -78,4 +80,28 @@ public class GlobalExceptionHandler {
         String min = String.valueOf(attributes.get(MIN_ATTRIBUTE));
         return message.replace("{" + MIN_ATTRIBUTE + "}", min);
     }
-}
+
+        @ExceptionHandler(value = MissingServletRequestParameterException.class)
+        ResponseEntity<ApiResponse> handleMissingServletRequestParameter(MissingServletRequestParameterException ex) {
+            String paramName = ex.getParameterName();
+            String message = paramName + " is required" ;
+
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setCode(ErrorCode.INVALID_KEY.getCode()); // hoặc bạn định nghĩa riêng một mã lỗi như MISSING_PARAM
+            apiResponse.setMessage(message);
+
+            return ResponseEntity.badRequest().body(apiResponse);
+        }
+        @ExceptionHandler(MissingServletRequestPartException.class)
+        public ResponseEntity<ApiResponse> handleMissingServletRequestPart(MissingServletRequestPartException ex) {
+            String partName = ex.getRequestPartName(); // ví dụ: "file"
+            String message = partName + " is required";
+
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setCode(ErrorCode.INVALID_KEY.getCode()); // hoặc ErrorCode.INVALID_KEY nếu không có mã riêng
+            apiResponse.setMessage(message);
+
+            return ResponseEntity.badRequest().body(apiResponse);
+        }
+
+    }

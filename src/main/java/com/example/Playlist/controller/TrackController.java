@@ -3,6 +3,8 @@ package com.example.Playlist.controller;
 import com.example.Playlist.dto.ApiResponse;
 import com.example.Playlist.dto.request.TrackRequest;
 import com.example.Playlist.dto.response.TrackResponse;
+import com.example.Playlist.exception.AppException;
+import com.example.Playlist.exception.ErrorCode;
 import com.example.Playlist.service.TrackService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +24,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/tracks")
+    @RequestMapping("/api/v1/tracks")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class TrackController {
@@ -64,15 +66,16 @@ public class TrackController {
     public ResponseEntity<ApiResponse<TrackResponse>> updateTrack(
             @PathVariable Long id,
             @RequestParam("title") String title,
-            @RequestParam("description") String description,
+            @RequestParam(value = "description", required = false) String description,
             @RequestParam("mainArtist") String mainArtist,
             @RequestParam("isPublic") boolean isPublic,
+            @RequestParam(value = "genreId", required = false) Long genreId,
             @RequestParam(value = "image", required = false) MultipartFile image) {
 
         return ResponseEntity.ok(ApiResponse.<TrackResponse>builder()
                 .code(1000)
                 .message("Cập nhật bài hát thành công")
-                .data(trackService.updateTrackAndImage(id, title, description, mainArtist, isPublic, image))
+                .data(trackService.updateTrackAndImage(id, title, description, mainArtist,genreId,isPublic, image))
                 .build());
     }
 
@@ -109,17 +112,27 @@ public class TrackController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<TrackResponse>> createTrack(
-            @RequestParam("name") String name,
+            @RequestParam(value = "name", required = true) String name,
             @RequestParam("mainArtist") String mainArtist,
             @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "genreId", required = false) Long genreId,
             @RequestPart("file") MultipartFile audio,
             @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
-
+        String contentType = audio.getContentType(); // ví dụ: "audio/mpeg"
+        if (contentType == null || (!contentType.equals("audio/mpeg") && !contentType.equals("audio/wav"))) {
+            throw new AppException(ErrorCode.INVALID_AUDIO_FORMAT);
+        }
         // Tạo TrackRequest từ các param
         TrackRequest trackRequest = new TrackRequest();
         trackRequest.setNameTrack(name);
         trackRequest.setMainArtist(mainArtist);
         trackRequest.setDescription(description);
+
+        if (genreId == null) {
+            trackRequest.setGenreId(0);
+        } else {
+            trackRequest.setGenreId(genreId);
+        }
 
         // Gọi service
         TrackResponse response = trackService.createTrack(trackRequest, audio, image);
