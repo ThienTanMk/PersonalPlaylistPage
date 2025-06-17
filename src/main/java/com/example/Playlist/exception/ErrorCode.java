@@ -10,7 +10,7 @@ public enum ErrorCode {
     UNCATEGORIZED(102, "Uncategorized Exception", HttpStatus.INTERNAL_SERVER_ERROR),
     UNAUTHENTICATED(103, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(104, "You dont have permission", HttpStatus.FORBIDDEN),
-    INVALID_AUDIO_FORMAT(105, "Invalid audio file", HttpStatus.BAD_REQUEST);
+    INVALID_AUDIO_FORMAT(105, "Invalid audio file", HttpStatus.NOT_FOUND);
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
         this.message = message;
