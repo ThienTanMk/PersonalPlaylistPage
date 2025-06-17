@@ -26,7 +26,7 @@ public class PlaylistController {
                         @RequestPart(value = "image", required = false) MultipartFile image) {
                 PlaylistResponse response = playlistService.createPlaylist(playlistRequest, image);
                 return ResponseEntity.ok(ApiResponse.<PlaylistResponse>builder()
-                                .code(1000)
+                                .code(200)
                                 .message("Tạo playlist thành công")
                                 .data(response)
                                 .build());

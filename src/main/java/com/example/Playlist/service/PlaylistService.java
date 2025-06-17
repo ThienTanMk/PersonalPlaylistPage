@@ -39,15 +39,14 @@ public class PlaylistService {
         // Lấy user từ SecurityContext
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         WebUser user = webUserRepository.findByEmail(email);
-
+        if(user==null){
+            throw new RuntimeException("User not found");
+        }
         // Lưu file ảnh (nếu có)
         String imageName = null;
         if (image != null && !image.isEmpty()) {
             try {
                 Path uploadPath = Paths.get(UPLOAD_IMAGE_DIR);
-                if (!Files.exists(uploadPath)) {
-                    Files.createDirectories(uploadPath);
-                }
                 String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
                 String originalFilename = image.getOriginalFilename();
                 imageName = timestamp + "_" + originalFilename;
@@ -57,11 +56,14 @@ public class PlaylistService {
                 throw new RuntimeException("Lỗi khi lưu ảnh", e);
             }
         }
-
+        List<Long> trackIds = request.getTrackIds();
         // Lấy danh sách track
         List<Track> tracks = new ArrayList<>();
         if (request.getTrackIds() != null && !request.getTrackIds().isEmpty()) {
             tracks = trackRepository.findAllById(request.getTrackIds());
+            if (tracks.size() != trackIds.size()) {
+                throw new RuntimeException("Một hoặc nhiều track không tồn tại");
+            }
         }
 
         // Tạo playlist
@@ -69,7 +71,7 @@ public class PlaylistService {
                 .name(request.getName())
                 .description(request.getDescription())
                 .imageName(imageName)
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now()) 
                 .user(user)
                 .tracks(tracks)
                 .build();
