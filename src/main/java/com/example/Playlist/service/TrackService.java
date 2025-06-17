@@ -191,6 +191,12 @@ public class TrackService {
             TrackRequest trackRequest,
             MultipartFile audio,
             MultipartFile image) throws IOException {
+        if (audio == null) throw new AppException(ErrorCode.UNCATEGORIZED);
+        String contentType = audio.getContentType(); // ví dụ: "audio/mpeg"
+        if (contentType == null || (!contentType.equals("audio/mpeg") && !contentType.equals("audio/wav"))) {
+            throw new AppException(ErrorCode.INVALID_AUDIO_FORMAT);
+        }
+
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         // Tìm người dùng hiện tại

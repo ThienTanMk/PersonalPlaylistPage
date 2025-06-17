@@ -6,6 +6,8 @@ import com.example.Playlist.entity.Genre;
 import com.example.Playlist.entity.WebUser;
 import com.example.Playlist.repository.GenreRepository;
 import com.example.Playlist.repository.UserRepository;
+import com.example.Playlist.exception.AppException;
+import com.example.Playlist.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -75,8 +77,13 @@ public class GenreService {
     }
 
     public GenreResponse updateGenre(Long id, GenreRequest request, MultipartFile image) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Genre genre = genreRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Genre not found"));
+
+        if (!genre.getUser().getEmail().equals(email)) {
+            throw new AppException(ErrorCode.UNCATEGORIZED);
+        }
 
         genre.setName(request.getName());
         genre.setDescription(request.getDescription());
@@ -105,12 +112,15 @@ public class GenreService {
         return mapToResponse(genreRepository.save(genre));
     }
 
-
-
     public void deleteGenre(Long id) {
-        if (!genreRepository.existsById(id)) {
-            throw new RuntimeException("Genre not found");
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Genre genre = genreRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Genre not found"));
+
+        if (!genre.getUser().getEmail().equals(email)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
         }
+
         genreRepository.deleteById(id);
     }
 
