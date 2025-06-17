@@ -52,7 +52,7 @@ public class Track {
     @Column(nullable = true,columnDefinition = "NVARCHAR(128)")
     String image;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = true)
     LocalDate createdAt;
 
     @Column(columnDefinition = "NVARCHAR(255)")
@@ -61,7 +61,7 @@ public class Track {
     @Column(name = "main_artist",columnDefinition = "NVARCHAR(255)")
     String mainArtist;
 
-    @Column(name = "is_public")
+    @Column(name = "is_public", nullable = true)
     Boolean isPublic;
 
     @ManyToOne
