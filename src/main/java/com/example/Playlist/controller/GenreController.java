@@ -5,6 +5,7 @@ import com.example.Playlist.dto.response.GenreResponse;
 import com.example.Playlist.dto.ApiResponse;
 import com.example.Playlist.service.GenreService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
@@ -50,7 +51,7 @@ public class GenreController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<GenreResponse>> updateGenre(
             @PathVariable Long id,
-            @RequestPart("genre") GenreRequest request,
+           @Valid @RequestPart("genre") GenreRequest request,
             @RequestPart(value = "image", required = false) MultipartFile image) {
 
         GenreResponse response = genreService.updateGenre(id, request, image);
