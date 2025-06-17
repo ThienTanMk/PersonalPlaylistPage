@@ -50,14 +50,19 @@ public class GenreController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<GenreResponse>> updateGenre(
             @PathVariable Long id,
-            @RequestBody GenreRequest request) {
-        GenreResponse response = genreService.updateGenre(id, request);
+            @RequestPart("genre") GenreRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+
+        GenreResponse response = genreService.updateGenre(id, request, image);
+
         return ResponseEntity.ok(ApiResponse.<GenreResponse>builder()
                 .code(1000)
                 .message("Cập nhật thể loại thành công")
                 .data(response)
                 .build());
     }
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<String>> deleteGenre(@PathVariable Long id) {

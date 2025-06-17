@@ -74,7 +74,7 @@ public class GenreService {
         return mapToResponse(saved);
     }
 
-    public GenreResponse updateGenre(Long id, GenreRequest request) {
+    public GenreResponse updateGenre(Long id, GenreRequest request, MultipartFile image) {
         Genre genre = genreRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Genre not found"));
 
@@ -82,8 +82,30 @@ public class GenreService {
         genre.setDescription(request.getDescription());
         genre.setActive(request.getIsActive());
 
+        if (image != null && !image.isEmpty()) {
+            // Sinh tên file duy nhất
+            String fileName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
+
+            // Đường dẫn lưu (tùy bạn setup)
+            Path imagePath = Paths.get("uploads/genres", fileName);
+
+            try {
+                // Tạo thư mục nếu chưa có
+                Files.createDirectories(imagePath.getParent());
+                // Ghi file
+                Files.write(imagePath, image.getBytes());
+
+                // Lưu tên ảnh vào genre
+                genre.setImageName(fileName);
+            } catch (IOException e) {
+                throw new RuntimeException("Lỗi khi lưu ảnh thể loại", e);
+            }
+        }
+
         return mapToResponse(genreRepository.save(genre));
     }
+
+
 
     public void deleteGenre(Long id) {
         if (!genreRepository.existsById(id)) {
