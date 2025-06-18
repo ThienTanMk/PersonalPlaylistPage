@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -165,21 +166,24 @@ public class GenreService {
     }
 
     private GenreResponse mapToResponse(Genre genre) {
-        List<TrackResponse> trackResponses = genre.getTracks().stream().map(track -> TrackResponse.builder()
-                .idTrack(track.getIdTrack())
-                .nameTrack(track.getNameTrack())
-                .userName(track.getUserName())
-                .duration(track.getDuration())
-                .createdAt(track.getCreatedAt())
-                .likeCount(track.getLikeCount())
-                .viewCount(track.getViewCount())
-                .commentCount(track.getCommentCount())
-                .urlTrack(track.getTrackAudio())
-                .image(track.getImage())
-                .isPublic(track.getIsPublic())
-                .description(track.getDescription())
-                .mainArtist(track.getMainArtist())
-                .build()).collect(Collectors.toList());
+        List<TrackResponse> trackResponses = new ArrayList<>();
+        if (genre.getTracks() != null && !genre.getTracks().isEmpty()) {
+            trackResponses = genre.getTracks().stream().map(track -> TrackResponse.builder()
+                    .idTrack(track.getIdTrack())
+                    .nameTrack(track.getNameTrack())
+                    .userName(track.getUserName())
+                    .duration(track.getDuration())
+                    .createdAt(track.getCreatedAt())
+                    .likeCount(track.getLikeCount())
+                    .viewCount(track.getViewCount())
+                    .commentCount(track.getCommentCount())
+                    .urlTrack(track.getTrackAudio())
+                    .image(track.getImage())
+                    .isPublic(track.getIsPublic())
+                    .description(track.getDescription())
+                    .mainArtist(track.getMainArtist())
+                    .build()).collect(Collectors.toList());
+        }
         return GenreResponse.builder()
                 .id(genre.getId())
                 .name(genre.getName())
