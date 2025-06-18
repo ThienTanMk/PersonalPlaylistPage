@@ -154,7 +154,7 @@ class PlaylistServiceTest {
 
             test.pass("Tạo playlist không có track thành công.");
         } catch (Throwable t) {
-            test.fail(" Test thất bại: Người dùng gửi thông tin hợp lệ nhưng không lưu được" );
+            test.fail(" Test thất bại: Người dùng gửi thông tin hợp lệ nhưng không lưu được " );
             fail(t);
         }
     }
@@ -175,7 +175,7 @@ class PlaylistServiceTest {
 
             test.pass("Đã phát hiện đúng track không tồn tại.");
         } catch (Throwable t) {
-            test.fail(" Test thất bại: Không thông báo 'Một hoặc nhiều bài hát không tồn tại' khi đưa vào bài hát không tồn tại cho người dùng" );
+            test.fail(" Test thất bại: Không thông báo 'Một hoặc nhiều bài hát không tồn tại' khi đưa vào bài hát không tồn tại cho người dùng như mong đợi." );
             fail(t);
         }
     }
@@ -221,7 +221,7 @@ class PlaylistServiceTest {
 
             test.pass("Đã phát hiện lỗi người dùng chưa đăng nhập. Không thể tạo playlist khi chưa đăng nhập");
         } catch (Throwable t) {
-            test.fail(" Test thất bại: " + "Người dùng chưa đăng nhập nhưng không báo lỗi chưa đăng nhập " );
+            test.fail(" Test thất bại: " + "Người dùng chưa đăng nhập nhưng không báo lỗi chưa đăng nhập như mong đợi." );
             fail(t);
         }
     }
@@ -241,7 +241,7 @@ class PlaylistServiceTest {
 
             test.pass("Xóa playlist thành công khi người dùng là chủ sở hữu.");
         } catch (Throwable t) {
-            test.fail("Test thất bại: " +"Chủ playlist nhưng không xóa được playlist của mình " );
+            test.fail("Test thất bại: " +"Chủ playlist nhưng không xóa được playlist của mình như mong đợi." );
             fail(t);
         }
     }
@@ -282,7 +282,30 @@ class PlaylistServiceTest {
             assertEquals("Không tìm thấy playlist", ex.getMessage());
             test.pass("Đã xử lý đúng khi không tìm thấy playlist để xóa.");
         } catch (Throwable t) {
-            test.fail("Playlist không tồn tại nhưng không thông báo lỗi cho người dùng ");
+            test.fail("Playlist không tồn tại nhưng không thông báo lỗi cho người dùng như mong đợi.");
+            fail(t);
+        }
+    }
+
+    @Test
+    @DisplayName("Lấy playlist của người dùng")
+    void WTC10_getAllPlaylistsByCurrentUser_emptyList_should_return_empty() {
+        try {
+            WebUser user = new WebUser();
+            user.setEmail("test@example.com");
+            when(authentication.getName()).thenReturn("test@example.com");
+            when(userRepository.findByEmail("test@example.com")).thenReturn(user);
+
+            when(playlistRepository.findAllByUser(user)).thenReturn(Collections.emptyList());
+
+            List<PlaylistResponse> result = playlistService.getAllPlaylistsByCurrentUser();
+
+            assertNotNull(result);
+            assertTrue(result.isEmpty());
+
+            test.pass("Không có playlist nào - trả về danh sách rỗng thành công.");
+        } catch (Throwable t) {
+            test.fail("Test thất bại: Không trả lại danh sách cho người dùng khi có playlist như mong đợi.");
             fail(t);
         }
     }
