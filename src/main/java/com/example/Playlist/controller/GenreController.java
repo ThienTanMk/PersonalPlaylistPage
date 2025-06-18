@@ -35,7 +35,15 @@ public class GenreController {
                 .data(genres)
                 .build());
     }
-
+    @GetMapping("/active")
+    public ResponseEntity<ApiResponse<List<GenreResponse>>> getActiveGenres() {
+        List<GenreResponse> genres = genreService.getActiveGenres();
+        return ResponseEntity.ok(ApiResponse.<List<GenreResponse>>builder()
+                .code(1000)
+                .message("Lấy danh sách thể loại đang hoạt động thành công")
+                .data(genres)
+                .build());
+    }
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<GenreResponse>> createGenre(
             @RequestPart("genre") GenreRequest request,

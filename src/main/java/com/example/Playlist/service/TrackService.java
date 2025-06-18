@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -99,7 +100,8 @@ public class TrackService {
         track.setIsPublic(trackRequest.getIsPublic());
         track.setMainArtist(trackRequest.getMainArtist());
         if(trackRequest.getGenreId()!=0){
-            Genre genre = genreRepository.findById(trackRequest.getGenreId()).orElse(null);
+            Genre genre = genreRepository.findByIdAndIsActiveTrue(trackRequest.getGenreId())
+                    .orElseThrow(() -> new AppException(ErrorCode.INVALID_GENRE));
             track.setGenre(genre);
         }
         trackRepository.save(track);
@@ -141,12 +143,9 @@ public class TrackService {
                     .nameTrack(title)
                     .description(description)
                     .mainArtist(mainArtist)
+                    .genreId(Optional.ofNullable(genreId).orElse(0L))
                     .build();
-            if (genreId == null) {
-                 trackRequest.setGenreId(0);
-            } else {
-                trackRequest.setGenreId(genreId);
-            }
+
             TrackResponse updatedTrack = updateTrack(id, trackRequest);
 
             return updatedTrack;
@@ -203,7 +202,12 @@ public class TrackService {
         WebUser user = userRepository.findByEmail(email);
         if (user == null)
             throw new AppException(ErrorCode.UNAUTHENTICATED);
-        Genre genre = genreRepository.findById(trackRequest.getGenreId()).orElse(null);
+        Genre genre = null;
+        if (trackRequest.getGenreId() > 0) {
+            genre = genreRepository.findByIdAndIsActiveTrue(trackRequest.getGenreId())
+                    .orElseThrow(() -> new AppException(ErrorCode.INVALID_GENRE));
+        }
+
         // Tạo track mới
         Track track = Track.builder()
                 .nameTrack(trackRequest.getNameTrack())

@@ -39,7 +39,11 @@ public class GenreService {
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
-
+    public List<GenreResponse> getActiveGenres() {
+        return genreRepository.findByIsActiveTrue().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
     public GenreResponse createGenre(GenreRequest request, MultipartFile image) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         WebUser user = webUserRepository.findByEmail(email);
@@ -120,8 +124,8 @@ public class GenreService {
         if (!genre.getUser().getEmail().equals(email)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
-
-        genreRepository.deleteById(id);
+        genre.setActive(false);
+        genreRepository.save(genre);
     }
 
     private GenreResponse mapToResponse(Genre genre) {
