@@ -9,6 +9,8 @@ import com.example.Playlist.entity.WebUser;
 import com.example.Playlist.repository.PlaylistRepository;
 import com.example.Playlist.repository.TrackRepository;
 import com.example.Playlist.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -130,6 +132,7 @@ public class PlaylistService {
         return mapToResponse(playlist);
     }
 
+    @Transactional
     public void deletePlaylist(Long playlistId) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -140,6 +143,12 @@ public class PlaylistService {
         if (!playlist.getUser().getEmail().equals(email)) {
             throw new RuntimeException("Bạn không có quyền xóa playlist này");
         }
+
+        
+        try {
+            Path imagePath = Paths.get(UPLOAD_IMAGE_DIR, playlist.getImageName());
+            Files.deleteIfExists(imagePath);
+        } catch (IOException e){}
 
         playlistRepository.delete(playlist);
     }
