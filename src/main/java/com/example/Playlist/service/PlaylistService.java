@@ -153,6 +153,7 @@ public class PlaylistService {
         playlistRepository.delete(playlist);
     }
 
+    @Transactional
     public PlaylistResponse updatePlaylist(Long playlistId, PlaylistRequest request, MultipartFile imageFile) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -172,7 +173,10 @@ public class PlaylistService {
                 if (!Files.exists(uploadPath)) {
                     Files.createDirectories(uploadPath);
                 }
-
+                if(playlist.getImageName()!=null){
+                    Path imagePath = Paths.get(UPLOAD_IMAGE_DIR, playlist.getImageName());
+                    Files.deleteIfExists(imagePath);
+                }
                 String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
                 String originalFilename = imageFile.getOriginalFilename();
                 String newFileName = timestamp + "_" + originalFilename;

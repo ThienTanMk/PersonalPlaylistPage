@@ -24,6 +24,14 @@ public class PlaylistController {
         public ResponseEntity<ApiResponse<PlaylistResponse>> createPlaylist(
                         @RequestPart("playlist") PlaylistRequest playlistRequest,
                         @RequestPart(value = "image", required = false) MultipartFile image) {
+                
+                if(image!=null){
+                        String contentType= image.getContentType();
+                        if (contentType == null || !contentType.startsWith("image/")) {
+                                throw new RuntimeException("File tải lên không phải là ảnh hợp lệ");
+                        }
+                }
+
                 PlaylistResponse response = playlistService.createPlaylist(playlistRequest, image);
                 return ResponseEntity.ok(ApiResponse.<PlaylistResponse>builder()
                                 .code(200)
@@ -37,6 +45,12 @@ public class PlaylistController {
                         @PathVariable Long playlistId,
                         @RequestPart("playlist") PlaylistRequest playlistRequest,
                         @RequestPart(value = "image", required = false) MultipartFile image) {
+                if(image!=null){
+                        String contentType = image.getContentType();
+                        if (contentType == null || !contentType.startsWith("image/")) {
+                                throw new RuntimeException("File tải lên không phải là ảnh hợp lệ");
+                        }
+                }
                 PlaylistResponse response = playlistService.updatePlaylist(playlistId, playlistRequest, image);
                 return ResponseEntity.ok(ApiResponse.<PlaylistResponse>builder()
                                 .code(1000)
