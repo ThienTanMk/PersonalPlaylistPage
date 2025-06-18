@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -47,10 +48,43 @@ public class GenreService {
     public GenreResponse createGenre(GenreRequest request, MultipartFile image) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         WebUser user = webUserRepository.findByEmail(email);
-        if (genreRepository.existsByNameIgnoreCase(request.getName())) {
-            throw new RuntimeException("Tên thể loại đã tồn tại");
+
+        // Tìm genre theo tên (bất kể active hay không)
+        Optional<Genre> optionalGenre = genreRepository.findByNameIgnoreCase(request.getName());
+
+        Genre genre;
+        if (optionalGenre.isPresent()) {
+            genre = optionalGenre.get();
+            // Nếu genre cũ đang inactive, thì "kích hoạt lại" và cập nhật dữ liệu mới
+            if (!genre.isActive()) {
+                genre.setDescription(request.getDescription());
+                genre.setActive(true);
+                genre.setUser(user); // Gán lại user tạo (nếu bạn muốn)
+                genre.setCreatedAt(LocalDateTime.now()); // Hoặc giữ nguyên createdAt cũ nếu bạn muốn
+
+                // Nếu có ảnh mới => cập nhật
+                if (image != null && !image.isEmpty()) {
+                    String fileName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
+                    Path imagePath = Paths.get("uploads/genres", fileName);
+                    try {
+                        Files.createDirectories(imagePath.getParent());
+                        Files.write(imagePath, image.getBytes());
+                        genre.setImageName(fileName);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Lỗi khi lưu ảnh thể loại", e);
+                    }
+                }
+
+                Genre saved = genreRepository.save(genre);
+                return mapToResponse(saved);
+            } else {
+                // Genre đang active => lỗi trùng tên như trước
+                throw new RuntimeException("Tên thể loại đã tồn tại");
+            }
         }
-        Genre genre = Genre.builder()
+
+        // Nếu không tìm thấy genre cùng tên => tạo mới
+        genre = Genre.builder()
                 .name(request.getName())
                 .description(request.getDescription())
                 .isActive(request.getIsActive())
@@ -59,19 +93,11 @@ public class GenreService {
                 .build();
 
         if (image != null && !image.isEmpty()) {
-            // Sinh tên file duy nhất
             String fileName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
-
-            // Đường dẫn lưu (tùy bạn setup)
             Path imagePath = Paths.get("uploads/genres", fileName);
-
             try {
-                // Tạo thư mục nếu chưa có
                 Files.createDirectories(imagePath.getParent());
-                // Ghi file
                 Files.write(imagePath, image.getBytes());
-
-                // Lưu tên ảnh vào genre
                 genre.setImageName(fileName);
             } catch (IOException e) {
                 throw new RuntimeException("Lỗi khi lưu ảnh thể loại", e);
@@ -81,6 +107,7 @@ public class GenreService {
         Genre saved = genreRepository.save(genre);
         return mapToResponse(saved);
     }
+
 
     public GenreResponse updateGenre(Long id, GenreRequest request, MultipartFile image) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
