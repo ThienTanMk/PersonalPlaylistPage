@@ -39,9 +39,9 @@ public class PlaylistService {
         // Lấy user từ SecurityContext
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         WebUser user = webUserRepository.findByEmail(email);
-        if(user==null){
-            throw new RuntimeException("User not found");
-        }
+        // if(user==null){
+        //     throw new RuntimeException("Người dùng chưa đăng nhập");
+        // }
         // Lưu file ảnh (nếu có)
         String imageName = null;
         if (image != null && !image.isEmpty()) {
@@ -176,7 +176,13 @@ public class PlaylistService {
                 throw new RuntimeException("Không thể lưu ảnh mới", e);
             }
         }
-
+        if(request.getTrackIds()!=null){
+            List<Track> tracks = trackRepository.findAllById(request.getTrackIds());
+            if(tracks.size()!=request.getTrackIds().size()){
+                throw new RuntimeException("Một hoặc nhiều track không tồn tại");
+            }
+            playlist.setTracks(tracks);
+        }
         playlistRepository.save(playlist);
         return mapToResponse(playlist);
     }
