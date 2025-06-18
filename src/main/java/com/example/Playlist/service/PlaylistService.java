@@ -54,7 +54,7 @@ public class PlaylistService {
                 imageName = timestamp + "_" + originalFilename;
                 Path filePath = uploadPath.resolve(imageName);
                 Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new RuntimeException("Lỗi khi lưu ảnh", e);
             }
         }
@@ -148,7 +148,7 @@ public class PlaylistService {
         try {
             Path imagePath = Paths.get(UPLOAD_IMAGE_DIR, playlist.getImageName());
             Files.deleteIfExists(imagePath);
-        } catch (IOException e){}
+        } catch (Exception e){}
 
         playlistRepository.delete(playlist);
     }
