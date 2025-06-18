@@ -2,6 +2,7 @@ package com.example.Playlist.service;
 
 import com.example.Playlist.dto.request.GenreRequest;
 import com.example.Playlist.dto.response.GenreResponse;
+import com.example.Playlist.dto.response.TrackResponse;
 import com.example.Playlist.entity.Genre;
 import com.example.Playlist.entity.WebUser;
 import com.example.Playlist.repository.GenreRepository;
@@ -11,6 +12,7 @@ import com.example.Playlist.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,13 +37,18 @@ public class GenreService {
     GenreRepository genreRepository;
     UserRepository webUserRepository;
 
+
     public List<GenreResponse> getAllGenres() {
-        return genreRepository.findAll().stream()
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        WebUser user = webUserRepository.findByEmail(email);
+        return genreRepository.findByUser(user).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
     public List<GenreResponse> getActiveGenres() {
-        return genreRepository.findByIsActiveTrue().stream()
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        WebUser user = webUserRepository.findByEmail(email);
+        return genreRepository.findByUserAndIsActiveTrue(user).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -158,6 +165,21 @@ public class GenreService {
     }
 
     private GenreResponse mapToResponse(Genre genre) {
+        List<TrackResponse> trackResponses = genre.getTracks().stream().map(track -> TrackResponse.builder()
+                .idTrack(track.getIdTrack())
+                .nameTrack(track.getNameTrack())
+                .userName(track.getUserName())
+                .duration(track.getDuration())
+                .createdAt(track.getCreatedAt())
+                .likeCount(track.getLikeCount())
+                .viewCount(track.getViewCount())
+                .commentCount(track.getCommentCount())
+                .urlTrack(track.getTrackAudio())
+                .image(track.getImage())
+                .isPublic(track.getIsPublic())
+                .description(track.getDescription())
+                .mainArtist(track.getMainArtist())
+                .build()).collect(Collectors.toList());
         return GenreResponse.builder()
                 .id(genre.getId())
                 .name(genre.getName())
@@ -166,7 +188,9 @@ public class GenreService {
                 .isActive(genre.isActive())
                 .createdAt(genre.getCreatedAt())
                 .createdBy(genre.getUser().getEmail())
-                .tracks(null) // Optional: Nếu muốn trả về track, gọi trackService.mapToResponse()
+                .tracks(trackResponses)
                 .build();
     }
+
+
 }
