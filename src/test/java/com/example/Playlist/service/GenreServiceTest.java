@@ -168,14 +168,17 @@ class GenreServiceTest {
         try {
             Long genreId = 1L;
             Genre genre = Genre.builder()
-                .id(genreId)
-                .user(WebUser.builder().email("test@example.com").build())
-                .build();
+                    .id(genreId).name("genre1")
+                    .isActive(true)
+                    .user(WebUser.builder().email("test@example.com").build())
+                    .build();
 
             when(genreRepository.findById(genreId)).thenReturn(Optional.of(genre));
 
             assertDoesNotThrow(() -> genreService.deleteGenre(genreId));
-            verify(genreRepository).deleteById(genreId);
+
+            // ✅ Kiểm tra trạng thái
+            assertFalse(genre.isActive());
 
             test.pass("✅ Xóa genre thành công.");
         } catch (Throwable t) {
