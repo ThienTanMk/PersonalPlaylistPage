@@ -144,11 +144,13 @@ public class PlaylistService {
             throw new RuntimeException("Bạn không có quyền xóa playlist này");
         }
 
+        if (playlist.getImageName() != null) {
+            try {
+                Path imagePath = Paths.get(UPLOAD_IMAGE_DIR, playlist.getImageName());
+                Files.deleteIfExists(imagePath);
+            } catch (Exception e){}
+        }
         
-        try {
-            Path imagePath = Paths.get(UPLOAD_IMAGE_DIR, playlist.getImageName());
-            Files.deleteIfExists(imagePath);
-        } catch (Exception e){}
 
         playlistRepository.delete(playlist);
     }
