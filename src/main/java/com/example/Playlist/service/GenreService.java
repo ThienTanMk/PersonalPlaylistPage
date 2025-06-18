@@ -47,7 +47,9 @@ public class GenreService {
     public GenreResponse createGenre(GenreRequest request, MultipartFile image) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         WebUser user = webUserRepository.findByEmail(email);
-
+        if (genreRepository.existsByNameIgnoreCase(request.getName())) {
+            throw new RuntimeException("Tên thể loại đã tồn tại");
+        }
         Genre genre = Genre.builder()
                 .name(request.getName())
                 .description(request.getDescription())

@@ -10,6 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface GenreRepository extends JpaRepository<Genre,Long> {
+    boolean existsByNameIgnoreCase(String name);
     List<Genre> findByIsActiveTrue();
     Optional<Genre> findByIdAndIsActiveTrue(Long id);
 }
