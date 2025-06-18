@@ -90,12 +90,13 @@ class PlaylistServiceTest {
             MockMultipartFile image = new MockMultipartFile("image", "test.jpg", "image/jpeg", "img".getBytes());
 
             WebUser user = new WebUser();
-            user.setEmail("test@example.com");
-            when(userRepository.findByEmail("test@example.com")).thenReturn(user);
+            String email = "test@example.com";
+            user.setEmail(email);
+            when(userRepository.findByEmail(email)).thenReturn(user);
 
             Track t1 = new Track(); t1.setIdTrack(1L);
             Track t2 = new Track(); t2.setIdTrack(2L);
-            when(trackRepository.findAllById(List.of(1L, 2L))).thenReturn(List.of(t1, t2));
+            when(trackRepository.findByIdTrackInAndUserEmail(List.of(1L, 2L),email)).thenReturn(List.of(t1, t2));
             when(playlistRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
             PlaylistResponse response = playlistService.createPlaylist(request, image);
@@ -117,12 +118,14 @@ class PlaylistServiceTest {
         try {
             PlaylistRequest request = new PlaylistRequest("No Img", "No Desc", List.of(1L, 2L));
 
-            WebUser user = new WebUser(); user.setEmail("test@example.com");
+            String email = "test@example.com";
+            WebUser user = new WebUser(); user.setEmail(email);
+
             when(userRepository.findByEmail("test@example.com")).thenReturn(user);
 
             Track t1 = new Track(); t1.setIdTrack(1L);
             Track t2 = new Track(); t2.setIdTrack(2L);
-            when(trackRepository.findAllById(List.of(1L, 2L))).thenReturn(List.of(t1, t2));
+            when(trackRepository.findByIdTrackInAndUserEmail(List.of(1L, 2L),email)).thenReturn(List.of(t1, t2));
             when(playlistRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
             PlaylistResponse response = playlistService.createPlaylist(request, null);
@@ -165,9 +168,10 @@ class PlaylistServiceTest {
         try {
             PlaylistRequest request = new PlaylistRequest("Fail Track", "Desc", List.of(999L));
 
-            WebUser user = new WebUser(); user.setEmail("test@example.com");
-            when(userRepository.findByEmail("test@example.com")).thenReturn(user);
-            when(trackRepository.findAllById(List.of(999L))).thenReturn(List.of());
+            String email = "test@example.com";
+            WebUser user = new WebUser(); user.setEmail(email);
+            when(userRepository.findByEmail(email)).thenReturn(user);
+            when(trackRepository.findByIdTrackInAndUserEmail(List.of(999L),email)).thenReturn(List.of());
 
             RuntimeException ex = assertThrows(RuntimeException.class,
                     () -> playlistService.createPlaylist(request, null));
