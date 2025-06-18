@@ -9,6 +9,7 @@ import com.example.Playlist.entity.WebUser;
 import com.example.Playlist.exception.AppException;
 import com.example.Playlist.exception.ErrorCode;
 import com.example.Playlist.repository.GenreRepository;
+import com.example.Playlist.repository.PlaylistRepository;
 import com.example.Playlist.repository.TrackRepository;
 import com.example.Playlist.repository.UserRepository;
 
@@ -42,7 +43,7 @@ public class TrackService {
     TrackRepository trackRepository;
     GenreRepository genreRepository;
     UserRepository userRepository;
-
+    PlaylistRepository playlistRepository;
     public List<TrackResponse> getAllTracks() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return trackRepository.findAllByUserEmailOrderByCreatedAtDesc(email).stream()
@@ -61,10 +62,10 @@ public class TrackService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Track track = trackRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Bài hát không tồn tại"));
-
         if (!track.getUser().getEmail().equals(email)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
+        playlistRepository.deleteAllByTrackId(id);
 
         // Xóa file audio nếu có
         if (track.getTrackAudio() != null) {
