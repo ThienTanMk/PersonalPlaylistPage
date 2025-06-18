@@ -62,7 +62,7 @@ public class PlaylistService {
         // Lấy danh sách track
         List<Track> tracks = new ArrayList<>();
         if (request.getTrackIds() != null && !request.getTrackIds().isEmpty()) {
-            tracks = trackRepository.findAllById(request.getTrackIds());
+            tracks = trackRepository.findByIdTrackInAndUserEmail(request.getTrackIds(),email);
             if (tracks.size() != trackIds.size()) {
                 throw new RuntimeException("Một hoặc nhiều track không tồn tại");
             }
@@ -85,6 +85,11 @@ public class PlaylistService {
 
     public PlaylistResponse addTrackToPlaylist(Long playlistId, Long trackId) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        WebUser user = webUserRepository.findByEmail(email);
+        if(user==null){
+            throw new RuntimeException("Người dùng chưa đăng nhập");
+        }
 
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy playlist"));
@@ -192,7 +197,7 @@ public class PlaylistService {
             }
         }
         if(request.getTrackIds()!=null){
-            List<Track> tracks = trackRepository.findAllById(request.getTrackIds());
+            List<Track> tracks = trackRepository.findByIdTrackInAndUserEmail(request.getTrackIds(),email);
             if(tracks.size()!=request.getTrackIds().size()){
                 throw new RuntimeException("Một hoặc nhiều track không tồn tại");
             }

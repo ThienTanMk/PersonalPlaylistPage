@@ -11,4 +11,5 @@ public interface TrackRepository extends JpaRepository<Track,Long> {
     List<Track> findAllByOrderByCreatedAtDesc();
     List<Track> findAllByUserEmailOrderByCreatedAtDesc(String email);
     Track findByUserEmail(String email);
+    List<Track> findByIdTrackInAndUserEmail(List<Long> ids,String email);
 }
